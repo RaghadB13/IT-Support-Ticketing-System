@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>نظام الدعم التقني</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.rtl.min.css" rel="stylesheet">
+<link rel="icon" href="https://tse4.mm.bing.net/th/id/OIP.yuBkRm3nM9db-40hhJ8HGwHaEo?rs=1&pid=ImgDetMain&o=7&rm=3" type="image/x-icon" />
+
+  <style>
+    body {
+      background: linear-gradient(to left, #e0f2e9, #d1f5db);
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    .main-box {
+      max-width: 600px;
+      margin: auto;
+      margin-top: 10vh;
+      background: white;
+      padding: 40px;
+      border-radius: 15px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+      text-align: center;
+    }
+    .main-title {
+      font-size: 2rem;
+      font-weight: bold;
+      color: #198754;
+      margin-bottom: 20px;
+    }
+    .btn-lg {
+      font-size: 1.1rem;
+    }
+    .logo img {
+      max-width: 120px;
+      margin-bottom: 20px;
+    }
+    .admin-form {
+      display: none;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="main-box">
+      <div class="logo">
+        <img src="https://tse4.mm.bing.net/th/id/OIP.yuBkRm3nM9db-40hhJ8HGwHaEo?rs=1&pid=ImgDetMain&o=7&rm=3" alt="شعار الوزارة" class="img-fluid">
+      </div>
+      <div class="main-title">نظام الدعم التقني</div>
+
+      <div class="d-grid gap-3">
+        <a href="form.html" class="btn btn-success btn-lg">📝 رفع طلب دعم</a>
+        <button class="btn btn-outline-success btn-lg" onclick="toggleAdminForm()">📋 عرض الطلبات (للمسؤولين)</button>
+      </div>
+
+      <div class="admin-form" id="adminForm">
+        <h6 class="mt-4">أدخل رمز الدخول</h6>
+        <div class="input-group mt-2" style="max-width: 300px; margin: auto;">
+          <input type="password" id="adminCode" class="form-control text-center" placeholder="رمز المسؤول">
+          <button class="btn btn-success" onclick="checkAdminCode()">دخول</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function toggleAdminForm() {
+      document.getElementById("adminForm").style.display = "block";
+    }
+
+    function checkAdminCode() {
+      const code = document.getElementById("adminCode").value;
+      if (code === "IT123") {
+        window.location.href = "r.php"; // هنا اسم الصفحة اللي فيها جدول الطلبات
+      } else {
+        alert("رمز غير صحيح!");
+      }
+    }
+  </script>
+</body>
+</html>

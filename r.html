@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <title>عرض الطلبات</title>
+ <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.rtl.min.css" rel="stylesheet">
+
+<link rel="icon" href="https://tse4.mm.bing.net/th/id/OIP.yuBkRm3nM9db-40hhJ8HGwHaEo?rs=1&pid=ImgDetMain&o=7&rm=3" type="image/x-icon" />
+
+  <style>
+    /* نسخ التنسيق السابق هنا */
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #e0f2e9;
+      margin: 0;
+      padding: 30px;
+    }
+    .container {
+      max-width: 1200px;
+      margin: auto;
+      background: #fff;
+      padding: 25px;
+      border-radius: 10px;
+      box-shadow: 0 0 15px rgba(0,0,0,0.1);
+    }
+    h2 {
+      text-align: center;
+      color: #198754;
+    }
+    form.filter-form {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 15px;
+      justify-content: center;
+      margin-bottom: 20px;
+    }
+    form select, form input[type="date"] {
+      padding: 6px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+    }
+    button {
+      background-color: #198754;
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+    button:hover {
+      background-color: #146c43;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 15px;
+    }
+    th, td {
+      border: 1px solid #ddd;
+      padding: 10px;
+      text-align: center;
+    }
+    th {
+      background-color: #f0f0f0;
+    }
+    .print-btn {
+      margin-top: 10px;
+      background-color: #0d6efd;
+    }
+    .print-btn:hover {
+      background-color: #084298;
+    }
+    .btn-success {
+      background-color: #198754;
+      color: white;
+      border: none;
+      padding: 5px 10px;
+      border-radius: 5px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+    .btn-success:hover {
+      background-color: #146c43;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>عرض جميع الطلبات</h2>
+
+    <form method="GET" action="r.php" class="filter-form" id="filterForm">
+      <div>
+        <label>القسم:</label>
+        <select name="department" id="departmentSelect">
+          <option value="all">الكل</option>
+          <option value="رجال">رجال</option>
+          <option value="نساء">نساء</option>
+        </select>
+      </div>
+      <div>
+        <label>تاريخ الطلب:</label>
+        <input type="date" name="selected_date" id="selectedDate" />
+      </div>
+      <div>
+        <button type="submit">عرض</button>
+      </div>
+    </form>
+
+    <button class="print-btn" onclick="window.print()">طباعة</button>
+
+    <table>
+      <thead>
+        <tr>
+          <th>الاسم</th>
+          <th>القسم</th>
+          <th>الإدارة</th>
+          <th>نوع المشكلة</th>
+          <th>الوصف</th>
+          <th>رقم المكتب</th>
+          <th>الهاتف</th>
+          <th>البريد</th>
+          <th>تاريخ الطلب</th>
+          <th>الحالة</th>
+          <th>الإجراء</th>
+        </tr>
+      </thead>
+      <tbody id="tableBody">
+        <tr><td colspan="11">جارٍ تحميل البيانات...</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <script>
+    // جلب بيانات JSON
+    fetch('requests_data.json')
+      .then(response => response.json())
+      .then(data => {
+        // تعبئة خيارات الفلتر
+        document.getElementById('departmentSelect').value = data.department;
+        document.getElementById('selectedDate').value = data.selected_date;
+
+        const tbody = document.getElementById('tableBody');
+        tbody.innerHTML = '';
+
+        if (data.rows.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="11">لا توجد طلبات مطابقة</td></tr>';
+          return;
+        }
+
+        data.rows.forEach(row => {
+          const tr = document.createElement('tr');
+
+          tr.innerHTML = `
+            <td>${escapeHtml(row.employee_name)}</td>
+            <td>${escapeHtml(row.department)}</td>
+            <td>${escapeHtml(row.administration)}</td>
+            <td>${escapeHtml(row.issue_type)}</td>
+            <td>${nl2br(escapeHtml(row.description))}</td>
+            <td>${escapeHtml(row.office_number)}</td>
+            <td>${escapeHtml(row.phone)}</td>
+            <td>${escapeHtml(row.email)}</td>
+            <td>${escapeHtml(row.request_date)}</td>
+            <td>${escapeHtml(row.status || 'قيد الانتظار')}</td>
+            <td>
+              ${row.status !== 'تم التنفيذ' ? `
+                <form method="POST" action="update_status.php" onsubmit="return confirm('هل تريد تغيير الحالة إلى تم التنفيذ؟')">
+                  <input type="hidden" name="request_id" value="${row.id}" />
+                  <button type="submit" class="btn-success">تم التنفيذ</button>
+                </form>` : `<span style="color:green; font-weight:bold;">✔ تم التنفيذ</span>`}
+            </td>
+          `;
+          tbody.appendChild(tr);
+        });
+      });
+
+    // دوال للمساعدة
+    function escapeHtml(text) {
+      if (!text) return '';
+      return text
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+    }
+    function nl2br(str) {
+      return str.replace(/\n/g, "<br>");
+    }
+  </script>
+</body>
+</html>
